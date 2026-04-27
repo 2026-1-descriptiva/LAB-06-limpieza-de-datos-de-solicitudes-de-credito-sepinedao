@@ -17,6 +17,8 @@ def pregunta_01():
 
     import pandas as pd
 
+    
+
     df = pd.read_csv("files/input/solicitudes_de_credito.csv", sep=";", index_col=0)
     df = df.reset_index(drop=True)
 
@@ -49,15 +51,16 @@ def pregunta_01():
     )
 
     df["estrato"] = df.estrato.astype(str).str.strip().astype(int)
+
     df["comuna_ciudadano"] = (
         df.comuna_ciudadano.astype(str).str.strip().astype(float).astype(int)
-    )
-    df["fecha_de_beneficio"] = pd.to_datetime(
-        df["fecha_de_beneficio"].astype(str).str.strip(),
-        format="mixed",
-        dayfirst=True,
-        errors="coerce",
-    ).dt.strftime("%d/%m/%Y")
+        )
+
+    df["fecha_de_beneficio"] = df["fecha_de_beneficio"].apply(
+        lambda x: "/".join(reversed(str(x).split("/")))
+        if pd.notnull(x) and len(str(x).split("/")[0]) == 4
+        else x
+        )
 
     df = df.dropna()
     df = df.drop_duplicates()
@@ -67,14 +70,3 @@ def pregunta_01():
 
 
     df.to_csv("files/output/solicitudes_de_credito.csv", sep=";", index=False)
-
-
-    return df
-
-    
-    
-
-
-
-
-print(pregunta_01())
